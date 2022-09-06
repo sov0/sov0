@@ -1,0 +1,29 @@
+name: Test
+
+on: [workflow_dispatch ]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: [ "3.7", "3.8", "3.9", "3.10"]
+        pynacl-version: ["1.5.0"]
+    name: Test (${{ matrix.python-version }}, ${{ matrix.os }}, ${{ matrix.pynacl-version }})
+    runs-on:  ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    - run: python3 -m pip install -r requirements.txt
+    - run: python3 -m pip install pynacl==${{ matrix.pynacl-version }}
+    - name: Check pre-commit rules
+      run: pre-commit run --all-files
+    - name: Test
+      run: pytest

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        window.sodium = {onload: function (sodium) {}};
+        function is_ascii_str(str){
+            if(typeof(str)!=='string'){
+                return false;
+            }
+            for(var i=0;i<str.length;i++){
+                if(str.charCodeAt(i)>127){
+                    return false;
+                }
+            }
+            return true;
+        };
+        function check_inputs(){
+            let non_ascii_message
+                = "Username & password must only contain ASCII characters.";
+            let password_mismatch_message = "Passwords don't match"
+            if(!is_ascii_str(document.getElementById("username").value)
+                || !is_ascii_str(document.getElementById("password").value)
+                || !is_ascii_str(document.getElementById("password2").value)
+            ){
+                document.getElementById("error").innerHTML = non_ascii_message;
+                document.getElementById("address").innerHTML = "";
+                return false;
+            };
+            if(document.getElementById("password").value
+                != document.getElementById("password2").value
+            ){
+                document.getElementById("error").innerHTML = password_mismatch_message;
+                document.getElementById("address").innerHTML = "";
+                return false;
+            };
+            document.getElementById("error").innerHTML = "";
+            document.getElementById("address").innerHTML = "";
+            return true;
+        };
+        function get_address(inputs_are_correct){
+            if(!inputs_are_correct){
+                return;
+            }
+            // crypto_generichash() gets the blake2b hash of the username, which is
+            // fed into crypto_pwhash() with the password to generate a seed, which is
+            // used by crypto_sign_seed_keypair() to create a private & public key pair,
+            // from which we take the public key, which we then convert to a hex string.
+            // crypto_generichash() seems to take the salt and password as ascii-encoded
+            // bytestrings
+            address_hex =
+                sodium.to_hex(
+                    sodium.crypto_sign_seed_keypair(
+                        seed = sodium.crypto_pwhash(
+                            outlen = 32,
+                            passwd = document.getElementById("password").value.trim(),
+                            salt = sodium.crypto_generichash(
+                                    16, document.getElementById("username").value.trim()
+                                ),
+                            opslimit = sodium.crypto_pwhash_OPSLIMIT_MODERATE,
+                            memlimit = sodium.crypto_pwhash_MEMLIMIT_MODERATE,
+                            alg = sodium.crypto_pwhash_ALG_ARGON2ID13
+                        )
+                    )['publicKey']
+                );
+            console.log(address_hex);
+            document.getElementById("address").innerHTML = address_hex;
+            document.getElementById("tweet_address").innerHTML = address_hex;
+            document.getElementById("error").innerHTML = "";
+        };
+    </script>
+    <script src="libsodium.js/sodium.js" async></script>
+
+    <style>
+        html {
+            margin: auto;
+            max-width: 800px;
+            font-family: Arial;
+            line-height: 150%
+        }
+        input {
+            font-size: 18px;
+            background-color : #eee;
+            width: 300px;
+            padding: 4px;
+            padding-left: 10px;
+            padding-right: 10px;
+            border-radius: 2px;
+        }
+        input:focus{
+            outline-color: #888;
+            transition: 0.5s;
+        }
+        button {
+            background-color: #eee;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 8px;
+            padding-left: 20px;
+            padding-right: 20px;
+            border-radius: 6px;
+        }
+        button:hover {
+            background-color:  #ccc;
+        }
+        pre {
+            font-size: 16px;
+            white-space:pre-wrap;
+            background-color: #eee;
+        }
+        code {
+            font-size: 16px;
+            background-color: #eee;
+        }
+        #smalltext {
+            font-size: 12px;
+            line-height: 120%;
+        }
+    </style>
+
+    <link rel="icon" href="images/sov0.PNG">
+
+</head>
+
+
+<body>
+    <img src="images/sov0.PNG" width=150 height=150>
+    <h1>SoV0: a fixed-supply zero-fee cryptocurrency</h1>
+    SoV0 is a cryptocurrency optimized purely for being a store-of-value. SoV0’s design is simple: just a publicly-maintained text file documenting who owns how many units of some abstract asset, plus a rudimentary transaction system. SoV0 is too slow to be a general purpose payments platform, has no smart contract support, and certainly can't function as a currency. SoV0 intentionally adopts this limited functionality in order to achieve 0 supply growth and 0 fees (unlike all existing assets), with the long-term goal of becoming a singularly compelling coordinated value store.
+    <h3><a href="https://github.com/sov0/sov0">Read the whitepaper & see the code</a></h3>
+    <h1> SoV0 is currently in public test </h1>
+    SoV0 is is undergoing a public test with a $100,000 prize.  To participate, simply:
+    <ol>
+        <li><a href="#generate_address">Generate a SoV0 address below</a></li>
+        <li><a href="#request_sov0">Request some SoV0 testnet assets via Twitter</a></li>
+    </ol>
+    <p id="smalltext">
+        You may perform step 2 once per week, for a total of up to four (4) entries for the prize.  You must be at least 21 years of age to enter.  Testnet & sweepstakes begins September 6th 2022 at 8:00:01 a.m. Coordinated Universal Time ("UTC"), and ends on October 2nd 2022 at 11:59:59 p.m. UTC.  One entry per person per week, any attempt to circumvent this (e.g. via creation of multiple Twitter accounts) will result in disqualification.  Void where prohibited. Additional terms, conditions & restrictions apply. See <a href="sweepstakes_rules.md">the full rules here</a>.
+    </p>
+
+    <div id="generate_address">
+    <h3> 1. Generate a SoV0 address</h3>
+    <p>
+    <label for="username">Username:</label><br>
+    <input type="text" id="username" name="username" placeholder="example@email.com"><br>
+    <label for="password"> Password: </label><br>
+    <input type="password" id="password" name="password">
+    <br>
+    <label for="password"> Re-enter Password: </label><br>
+    <input type="password" id="password2" name="password2">
+    </p>
+    <button type="button" onclick="get_address(check_inputs())">
+        Generate address (this could take a few seconds)
+    </button>
+    <p>Your SoV0 address:&nbsp<span id="address", style="font-weight:bold"></span></p>
+    <p> <span id="error" style="background-color: #FFFF00"></span></p>
+    <ul id="smalltext">
+        <li>Write down your username & password, since address generation is done entirely on your computer (using <a href = "https://github.com/jedisct1/libsodium.js">libsodium.js</a>) & username/password are not sent/stored anywhere.</li>
+        <li>Anyone who knows (or guesses) your username & password will have access to the assets stored at your address.  When SoV0 goes live we'd recommend using a strong randomly generated password (currently, SoV0 is in testnet and all assets will be removed in a few weeks).</li>
+        <li>The same username + password will always generate the same address.</li>
+    </ul>
+    </div>
+
+    <div id="request_sov0">
+    <h3>2. Request some SoV0 via Twitter </h3>
+    Now that you have an address, request some SoV0 by just Tweeting a balance request message & emailing us the link:
+    <ol type="i">
+        <li>
+            <b>First, find the current SoV0 period & state</b> by going to the current SoV0 Twitter page at <a href="https://twitter.com/the_SoV0">twitter.com/the_SoV0</a> and checking the pinned tweet:
+            <ol type="a">
+                <li>locate the current SoV0 period, the number listed after <code>"#SoV0_new_period"</code></li>
+                <li>locate the current SoV0 state, the 64-length hexadecimal string listed after <code>"new_state"</code> </li>
+            </ol>
+            Here's an example of where to find these two values (the values themselves will be different):<br>
+            <img src="images/pinned.PNG">
+        </li>
+
+        <li>
+            <b>Then, post the following balance request message to Twitter</b>, replacing <code>PLACEHOLDER_SOV0_PERIOD</code> with the period from step 2.i.a, and <code>PLACEHOLDER_SOV0_STATE</code> with the state from step 2.i.b:
+<pre>
+{
+ "@the_SoV0": "Give me some SoV0 please. #sweepstakes",
+ "from": "<span id="tweet_address">PLACEHOLDER_ADDRESS</span>",
+ "period": PLACEHOLDER_SOV0_PERIOD,
+ "state": "PLACEHOLDER_SOV0_STATE"
+}
+</pre>
+            Here's an example of how your balance request tweet might look (again, values will be different):<br>
+            <img src="images/balance_request.PNG">
+        </li>
+
+        <li>
+            <b>Finally, send an email</b> to <a href="mailto:testnet.sweepstakes@sov0.org">testnet.sweepstakes@sov0.org</a></b>, with <code>balance request</code> as the subject, and just the URL of the tweet you posted in step 2.ii as the message body.  Be sure to send the web address of your tweet (and not e.g. of your Twitter profile).  Here's an example:<br>
+            <img src="images/balance_request_email.PNG">
+        </li>
+    </ol>
+
+    <p>
+        <b>You can send one balance request per week, for a total of up to 4.  Each valid balance request will be counted as a separate entry for the sweepstakes prize.</b>  Note that each week, the SoV0 period and state will change, so you'll have to figure out the new period and state (your address should remain the same).
+    </p>
+    <p>
+        The inclusion of the SoV0 period and state is a core part of how SoV0 works: by tweeting these two things, you're helping to build widespread knowledge of how much balance every account has, which ultimately is what secures the SoV0 blockchain.  For more information on this & other aspects of SoV0's design, see
+        <a href="https://github.com/sov0/sov0#3-design">the corresponding section of the whitepaper</a>
+    </p>
+ </div>
+
+
+    <div id="further_activities">
+        <h3>Going beyond</h3>
+        <p>
+            Once you've generated an address and requested some balance, you should receive some SoV0 assets in your account the following week.  Once you have some assets, you can send a transaction.  To do so, see
+            <a href="https://github.com/sov0/sov0#b2-sending-transactions"> this section of the whitepaper.</a>  Note that these assets are purely for testing purposes, and will be removed once this public testnet period concludes.
+        </p>
+        <p>
+            You may also want to monitor the weekly state update process by checking that the block producer is behaving properly, by following the instructions in
+            <a href="https://github.com/sov0/sov0#b3-the-state-blocks-and-state-updates-during-normal-operation">this</a> and
+            <a href="https://github.com/sov0/sov0#b4-updating-without-a-block-removing-the-block-producer">this</a> section of the whitepaper.
+        </p>
+
+    </div>
+
+
+    <div id="about">
+        <h1>About</h1>
+        <p>
+            The SoV0 protocol & software are open source.  The team behind SoV0 comes from an economics & technology background, with past experiences at Facebook's Libra cryptocurrency project and MIT.
+        </p>
+        <p>
+            Contact: <a href="mailto:custodian@sov0.org">custodian@sov0.org</a>, <a href="https://twitter.com/the_SoV0">https://twitter.com/the_SoV0</a>
+        </p>
+    </div>
+
+</body>
+</html>
