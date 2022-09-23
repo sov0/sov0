@@ -165,7 +165,7 @@
     Now that you have an address, request some SoV0 by just Tweeting a balance request message & emailing us the link:
     <ol type="i">
         <li>
-            <b>First, find the current SoV0 period & state</b> by going to the current SoV0 Twitter page at <a href="https://twitter.com/the_SoV0">twitter.com/the_SoV0</a> and checking the pinned tweet:
+            <b>First, find the current SoV0 period & state</b> by following the SoV0 Twitter account at <a href="https://twitter.com/the_SoV0">twitter.com/the_SoV0</a>, and checking the pinned tweet:
             <ol type="a">
                 <li>locate the current SoV0 period, the number listed after <code>"#SoV0_new_period"</code></li>
                 <li>locate the current SoV0 state, the 64-length hexadecimal string listed after <code>"new_state"</code> </li>
@@ -219,10 +219,25 @@
  </div>
 
 
-    <div id="further_activities">
-        <h3>Going beyond</h3>
+    <div id="going_beyond">
+        <h3>3. Going beyond</h3>
         <p>
-            Once you've generated an address and requested some balance, you should receive some SoV0 assets in your account the following week.  Once you have some assets, you can send a transaction.  To do so, see
+            Once you've generated an address and requested some balance, you should receive some SoV0 testnet assets at your address <b>the following Monday</b>.
+        </p>
+        <p>
+            If you want to check how much balance your address has: (1) go to the pinned tweet at <a href="https://twitter.com/the_SoV0">https://twitter.com/the_SoV0</a>, (2) download the state file via the link a few replies down, and (3) ctrl+f for your address in that file.
+            <br>
+            <img src="images/find_state_file.PNG">
+            <br>
+            <br>
+            <img src="images/find_address.PNG">
+            <br>
+            If your address doesn't appear in the file, then one of these things happened: (1) your balance request was submitted too late to have been included in this period and you'll get some assets next period, (2) your balance request had some issues (e.g. improper format, incorrect state) and couldn't be included, or (3) the block producer otherwise failed to include the request.
+        </p>
+
+        <p>
+
+            Once you've confirmed you have some assets, you can try sending a transaction.  To do so, see
             <a href="https://github.com/sov0/sov0#b2-sending-transactions"> this section of the whitepaper.</a>  Note that these assets are purely for testing purposes, and will be removed once this public testnet period concludes.
         </p>
         <p>
