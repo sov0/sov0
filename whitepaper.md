@@ -3,8 +3,6 @@
 # SoV0: a fixed-supply zero-fee cryptocurrency
 SoV0 is a cryptocurrency optimized purely for being a store-of-value. SoV0’s design is simple: just a publicly-maintained text file documenting who owns how many units of some abstract asset, plus a rudimentary transaction system. SoV0 is too slow to be a general purpose payments platform, has no smart contract support, and certainly can't function as a currency. SoV0 intentionally adopts this limited functionality in order to achieve 0 supply growth and 0 fees (unlike all existing assets), with the long-term goal of becoming a singularly compelling coordinated value store.
 
-**SoV0 is currently undergoing a pre-launch public test with a cash prize: https://www.sov0.org/**
-
 - [1. Overview](#1-overview)
 - [2. Value](#2-value)
 - [3. Design](#3-design)
